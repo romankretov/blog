@@ -44,6 +44,12 @@ func NewDeps(ctx context.Context, dbUrl, redisAddr, redisPassword string, redisD
 		_ = rdb.Close()
 		return nil, err
 	}
+	_, err = db.Exec(ctx, "SELECT 1 FROM users LIMIT 1;")
+	if err != nil {
+		db.Close()
+		rdb.Close()
+		return nil, err
+	}
 
 	return &Deps{
 		DB:    db,
