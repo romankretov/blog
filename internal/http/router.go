@@ -10,9 +10,12 @@ import (
 
 	"local/blog/internal/http/handlers"
 	appmw "local/blog/internal/http/middleware"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
-func NewRouter(log zerolog.Logger) http.Handler {
+func NewRouter(log zerolog.Logger, db *pgxpool.Pool, redis *redis.Client) http.Handler {
 	r := chi.NewRouter()
 
 	r.Use(chimw.RequestID)
@@ -21,7 +24,7 @@ func NewRouter(log zerolog.Logger) http.Handler {
 	r.Use(chimw.Recoverer)
 	r.Use(chimw.Timeout(10 * time.Second))
 
-	hh := handlers.NewHealthHandler()
+	hh := handlers.NewHealthHandler(db, redis)
 	r.Get("/healthz", hh.Healthz)
 	r.Get("/readyz", hh.Readyz)
 

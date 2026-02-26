@@ -2,7 +2,7 @@ APP=api
 PKG=./...
 
 
-.PHONY: run test build tidy
+.PHONY: run test build tidy up
 
 
 run:
@@ -17,3 +17,12 @@ build:
 
 tidy:
 	go mod tidy
+
+up:
+	podman-compose up -d
+
+down:
+	podman-compose down
+
+logs:
+	podman-compose logs -f

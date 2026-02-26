@@ -25,7 +25,14 @@ func New(cfg config.Config, log zerolog.Logger) *App {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	router := httpapi.NewRouter(a.log)
+	deps, err := NewDeps(ctx, a.cfg.DatabaseURL, a.cfg.RedisAddr, a.cfg.RedisPassword, a.cfg.RedisDB)
+	if err != nil {
+		return err
+	}
+	defer deps.DB.Close()
+	defer func() { _ = deps.Redis.Close() }()
+
+	router := httpapi.NewRouter(a.log, deps.DB, deps.Redis)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", a.cfg.Port),
